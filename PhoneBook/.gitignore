@@ -1,0 +1,23 @@
+# Visual Studio temporary and build files
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+x64/
+Debug/
+Release/
+
+# Compiled outputs
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.log
+*.tlog
+*.recipe
+
+.copilot/
+.github/copilot/
+*.snapshots
+.claudemanifest*
+.claude/
