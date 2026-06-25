@@ -15,14 +15,14 @@ public:
     }
 
 	// Getters
-    const std::string& getName() const { return m_name; }
-    const std::vector<std::string>& getPhones() const { return m_phones; }
+    const std::string& GetName() const { return m_name; }
+    const std::vector<std::string>& GetPhones() const { return m_phones; }
 
-    void addPhone(const std::string& phone);
+    void AddPhone(const std::string& phone);
 
-    void removePhone(const std::string& phone);
+    void RemovePhone(const std::string& phone);
 
-    void updatePhone(const std::string& oldPhone, const std::string& newPhone);
+    void UpdatePhone(const std::string& oldPhone, const std::string& newPhone);
 
 private:
     std::string m_name;

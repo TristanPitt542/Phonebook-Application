@@ -10,6 +10,16 @@ private:
 
 public:
 	Menu(PhoneBookManager manager);
+
 	void MainMenu();
+
+	void AddContact();
+
+	void EditContacts();
+
+	void DisplayContacts();
+
+	void Exit();
+
 	
 };

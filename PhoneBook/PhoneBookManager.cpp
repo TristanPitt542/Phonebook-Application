@@ -1,6 +1,8 @@
 #include "PhoneBookManager.h"
+#include <vector>
+#include <algorithm>
 
-bool PhoneBookManager::load() {
+bool PhoneBookManager::Load() {
 	std::ifstream file(m_filename);
 
 	if (!file.is_open()) {
@@ -11,7 +13,7 @@ bool PhoneBookManager::load() {
 	std::string line;
 	while (std::getline(file, line)) {
 		if (!line.empty()) {
-			parseContactLine(line);
+			ParseContactLine(line);
 		}
 	}
 
@@ -20,7 +22,7 @@ bool PhoneBookManager::load() {
 	return true;
 }
 
-bool PhoneBookManager::save() const {
+bool PhoneBookManager::Save() const {
 	std::ofstream file(m_filename);
 
 	if (!file.is_open()) {
@@ -30,7 +32,7 @@ bool PhoneBookManager::save() const {
 
 	for (const auto& [name, contact] : m_contacts) {
 		file << name;
-		for (const auto& phone : contact.getPhones()) {
+		for (const auto& phone : contact.GetPhones()) {
 			file << "|" << phone;
 		}
 		file << "\n";
@@ -40,7 +42,7 @@ bool PhoneBookManager::save() const {
 	return true;
 }
 
-void PhoneBookManager::parseContactLine(const std::string& line) {
+void PhoneBookManager::ParseContactLine(const std::string& line) {
 	std::stringstream ss(line);
 	std::string name, phone;
 
@@ -56,34 +58,34 @@ void PhoneBookManager::parseContactLine(const std::string& line) {
 	// Get all phone numbers
 	while (std::getline(ss, phone, '|')) {
 		if (!phone.empty()) {
-			contact.addPhone(phone);
+			contact.AddPhone(phone);
 		}
 	}
 
 	m_contacts[name] = contact;
 }
 
-bool PhoneBookManager::addContact(const std::string& name, const std::string& phone) {
+bool PhoneBookManager::AddContact(const std::string& name, const std::string& phone) {
 	if (name.empty() || phone.empty()) {
 		std::cerr << "Error: Name and phone cannot be empty.\n";
 		return false;
 	}
 
-	if (m_contacts.find(name) != m_contacts.end()) {
-		std::cerr << "Error: Contact '" << name << "' already exists.\n";
+	if (m_contacts.find(name) != m_contacts.end() || m_contacts.find(phone) != m_contacts.end()) {
+		std::cerr << "Error: Contact '" << name << "' or phone number '" + phone + "' already exists.\n";
 		return false;
 	}
 
 
 	Contact newContact(name, phone);
 	m_contacts[name] = newContact;
-	save();
+	Save();
 
 	std::cout << "Contact added successfully.\n";
 	return true;
 }
 
-bool PhoneBookManager::deleteContact(const std::string& name) {
+bool PhoneBookManager::DeleteContact(const std::string& name) {
 	auto it = m_contacts.find(name);
 
 	if (it == m_contacts.end()) {
@@ -92,13 +94,20 @@ bool PhoneBookManager::deleteContact(const std::string& name) {
 	}
 
 	m_contacts.erase(it);
-	save();
+	Save();
 
 	std::cout << "Contact deleted successfully.\n";
 	return true;
 }
 
-bool PhoneBookManager::addPhoneToContact(const std::string& name, const std::string& phone) {
+bool PhoneBookManager::DeleteAllContacts() {
+	m_contacts.clear();
+	Save();
+	std::cout << "All contacts deleted successfully.\n";
+	return true;
+}
+
+bool PhoneBookManager::AddPhoneToContact(const std::string& name, const std::string& phone) {
 	auto it = m_contacts.find(name);
 
 	if (it == m_contacts.end()) {
@@ -106,14 +115,14 @@ bool PhoneBookManager::addPhoneToContact(const std::string& name, const std::str
 		return false;
 	}
 
-	it->second.addPhone(phone);
-	save();
+	it->second.AddPhone(phone);
+	Save();
 
 	std::cout << "Phone number added successfully.\n";
 	return true;
 }
 
-bool PhoneBookManager::removePhoneFromContact(const std::string& name, const std::string& phone) {
+bool PhoneBookManager::RemovePhoneFromContact(const std::string& name, const std::string& phone) {
 	auto it = m_contacts.find(name);
 
 	if (it == m_contacts.end()) {
@@ -121,18 +130,14 @@ bool PhoneBookManager::removePhoneFromContact(const std::string& name, const std
 		return false;
 	}
 
-	it->second.removePhone(phone);
+		it->second.RemovePhone(phone);
 
-	if (it->second.getPhones().empty()) {
-		std::cout << "Warning: Contact has no phone numbers left. Consider deleting the contact.\n";
+		Save();
+		std::cout << "Phone number removed successfully.\n";
+		return true;
 	}
 
-	save();
-	std::cout << "Phone number removed successfully.\n";
-	return true;
-}
-
-bool PhoneBookManager::updatePhoneNumber(const std::string& name, const std::string& oldPhone, const std::string& newPhone) {
+bool PhoneBookManager::UpdatePhoneNumber(const std::string& name, const std::string& oldPhone, const std::string& newPhone) {
 	auto it = m_contacts.find(name);
 
 	if (it == m_contacts.end()) {
@@ -140,62 +145,69 @@ bool PhoneBookManager::updatePhoneNumber(const std::string& name, const std::str
 		return false;
 	}
 
-	it->second.updatePhone(oldPhone, newPhone);
-	save();
+	it->second.UpdatePhone(oldPhone, newPhone);
+	Save();
 
 	std::cout << "Phone number updated successfully.\n";
 	return true;
 }
 
-Contact* PhoneBookManager::findContact(const std::string& name) {
+const Contact* PhoneBookManager::FindContactByName(const std::string& name) const {
 	auto it = m_contacts.find(name);
 	return (it != m_contacts.end()) ? &it->second : nullptr;
 }
 
-const Contact* PhoneBookManager::findContact(const std::string& name) const {
-	auto it = m_contacts.find(name);
-	return (it != m_contacts.end()) ? &it->second : nullptr;
+const Contact* PhoneBookManager::FindContactByPhone(const std::string& phone) const {
+	for (const auto& [name, contact] : m_contacts) {
+		if (contact.GetPhones().end() != std::find(contact.GetPhones().begin(), contact.GetPhones().end(), phone)) {
+			return &contact;
+		}
+	}
+	return nullptr;
 }
 
-bool PhoneBookManager::contactExists(const std::string& name) const {
+bool PhoneBookManager::ContactExists(const std::string& name) const {
 	return m_contacts.find(name) != m_contacts.end();
 }
 
-int PhoneBookManager::getContactCount() const {
+int PhoneBookManager::GetContactCount() const {
 	return (int)m_contacts.size();
 }
 
-void PhoneBookManager::displayAllContacts() const {
-	if (m_contacts.empty()) {
+void PhoneBookManager::DisplayAllContacts(const std::vector<std::pair<std::string, Contact>>& contacts) const {
+	if (contacts.empty()) {
 		std::cout << "No contacts found.\n";
 		return;
 	}
 
 	std::cout << "\n========== PHONEBOOK ==========\n";
 	int count = 1;
-	for (const auto& [name, contact] : m_contacts) {
+	for (const auto& [name, contact] : contacts) {
 		std::cout << count << ". " << name << "\n";
-		for (const auto& phone : contact.getPhones()) {
+		for (const auto& phone : contact.GetPhones()) {
 			std::cout << "   - " << phone << "\n";
 		}
 	}
 	std::cout << "===============================\n\n";
 }
 
-void PhoneBookManager::searchByName(const std::string& name) const {
-	auto it = m_contacts.find(name);
+// Sorting
+void PhoneBookManager::SortContactsByName(bool ascending) {
+	std::vector<std::pair<std::string, Contact>> vec(m_contacts.begin(), m_contacts.end());
+	std::sort(vec.begin(), vec.end(), [ascending](const auto& a, const auto& b) {
+		if (ascending) return a.first < b.first;
+		return a.first > b.first;
+	});
 
-	if (it == m_contacts.end()) {
-		std::cout << "Contact '" << name << "' not found.\n";
-		return;
-	}
+	this->DisplayAllContacts(vec);
+}
 
-	const Contact& contact = it->second;
-	std::cout << "\n--- Contact Found ---\n";
-	std::cout << "Name: " << contact.getName() << "\n";
-	std::cout << "Phone Numbers:\n";
-	for (const auto& phone : contact.getPhones()) {
-		std::cout << "  - " << phone << "\n";
-	}
-	std::cout << "---------------------\n\n";
+void PhoneBookManager::SortContactsByPhoneCount(bool ascending) {
+	std::vector<std::pair<std::string, Contact>> vec(m_contacts.begin(), m_contacts.end());
+	std::sort(vec.begin(), vec.end(), [ascending](const auto& a, const auto& b) {
+		if (ascending) return a.second.GetPhones().size() < b.second.GetPhones().size();
+		return a.second.GetPhones().size() > b.second.GetPhones().size();
+	});
+
+	this->DisplayAllContacts(vec);
 }

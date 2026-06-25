@@ -1,13 +1,13 @@
 #include "Contact.h"
 
-void Contact::addPhone(const std::string& phone)
+void Contact::AddPhone(const std::string& phone)
 {
     if (!phone.empty() && std::find(m_phones.begin(), m_phones.end(), phone) == m_phones.end()) {
         m_phones.push_back(phone);
     }
 }
 
-void Contact::removePhone(const std::string& phone)
+void Contact::RemovePhone(const std::string& phone)
 {
     auto it = std::find(m_phones.begin(), m_phones.end(), phone);
     if (it != m_phones.end()) {
@@ -15,8 +15,8 @@ void Contact::removePhone(const std::string& phone)
     }
 }
 
-void Contact::updatePhone(const std::string& oldPhone, const std::string& newPhone)
+void Contact::UpdatePhone(const std::string& oldPhone, const std::string& newPhone)
 {
-    removePhone(oldPhone);
-    addPhone(newPhone);
+    RemovePhone(oldPhone);
+    AddPhone(newPhone);
 }

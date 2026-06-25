@@ -11,30 +11,37 @@ public:
 		: m_filename(filename) {}
 
 	// File I/O operations
-	bool load();
-	bool save() const;
+	bool Load();
+	bool Save() const;
 
 	// CRUD operations
-	bool addContact(const std::string& name, const std::string& phone);
-	bool deleteContact(const std::string& name);
-	bool updatePhoneNumber(const std::string& name, const std::string& oldPhone, const std::string& newPhone);
-	bool addPhoneToContact(const std::string& name, const std::string& phone);
-	bool removePhoneFromContact(const std::string& name, const std::string& phone);
+	bool AddContact(const std::string& name, const std::string& phone);
+	bool DeleteContact(const std::string& name);
+	bool DeleteAllContacts();
+	bool UpdatePhoneNumber(const std::string& name, const std::string& oldPhone, const std::string& newPhone);
+	bool AddPhoneToContact(const std::string& name, const std::string& phone);
+	bool RemovePhoneFromContact(const std::string& name, const std::string& phone);
 
 	// Search/Retrieve operations
-	Contact* findContact(const std::string& name);
-	const Contact* findContact(const std::string& name) const;
-	void displayAllContacts() const;
-	void searchByName(const std::string& name) const;
+	const Contact* FindContactByName(const std::string& name) const;
+	const Contact* FindContactByPhone(const std::string& phone) const;
+
+	void DisplayAllContacts(const std::vector<std::pair<std::string, Contact>>& contacts) const;
+	
+	//void SearchByName(const std::string& name) const;
+
+	// Sort operations
+	void SortContactsByName(bool ascending);
+	void SortContactsByPhoneCount(bool ascending);
 
 	// Utility
-	bool contactExists(const std::string& name) const;
-	int getContactCount() const;
+	bool ContactExists(const std::string& name) const;
+	int GetContactCount() const;
 
 private:
 	std::map<std::string, Contact> m_contacts;
 	std::string m_filename;
 
 	// Helper functions for parsing
-	void parseContactLine(const std::string& line);
+	void ParseContactLine(const std::string& line);
 };
